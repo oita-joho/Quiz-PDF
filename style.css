@@ -303,4 +303,11 @@ td {
     padding: 10mm 12mm 10mm 16mm;
     overflow: hidden;
   }
+  .answer-box-filled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
 }
