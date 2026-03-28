@@ -1,6 +1,5 @@
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
-const tableBox = $("tableBox");
 const paperArea = $("paperArea");
 const answerArea = $("answerArea");
 
@@ -20,7 +19,6 @@ async function loadCsv() {
 
     const text = await res.text();
     allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
-    renderTable(allQuestions);
     statusEl.textContent = `${allQuestions.length}問を読み込みました。`;
   } catch (err) {
     console.error(err);
@@ -35,7 +33,6 @@ async function loadLocalCsv(event) {
   try {
     const text = await file.text();
     allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
-    renderTable(allQuestions);
     statusEl.textContent = `${file.name} を読み込みました。${allQuestions.length}問あります。`;
   } catch (err) {
     console.error(err);
@@ -86,13 +83,15 @@ function parseCsv(text) {
   }
 
   const headers = rows.shift() || [];
-  return rows.map((r) => {
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (r[i] || "").trim();
-    });
-    return obj;
-  });
+  return rows
+    .map((r) => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = (r[i] || "").trim();
+      });
+      return obj;
+    })
+    .filter((rowObj) => Object.values(rowObj).some((v) => v !== ""));
 }
 
 function normalizeRow(r) {
@@ -119,40 +118,8 @@ function normalizeRow(r) {
     question_no: String(r.question_no || "").trim(),
     question: r.question.trim(),
     choices,
-    answerIndex: compactAnswerIndex
+    answerIndex: compactAnswerIndex,
   };
-}
-
-function renderTable(rows) {
-  if (!rows.length) {
-    tableBox.innerHTML = "表示できる問題がありません。";
-    return;
-  }
-
-  tableBox.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>タイトル</th>
-          <th>分野番号</th>
-          <th>問題番号</th>
-          <th>問題文</th>
-          <th>正解</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map((r) => `
-          <tr>
-            <td>${escapeHtml(r.title)}</td>
-            <td>${escapeHtml(r.field_no)}</td>
-            <td>${escapeHtml(r.question_no)}</td>
-            <td>${escapeHtml(r.question)}</td>
-            <td>${escapeHtml(r.choices[r.answerIndex])}</td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
 }
 
 function makeQuiz() {
@@ -185,18 +152,21 @@ function makeQuiz() {
   const title = inputTitle || csvTitle || "小テスト";
 
   renderPaper(title, generated);
-  //renderAnswers(title, generated);
+  renderAnswers(title, generated);
   statusEl.textContent = `${title} を ${generated.length}問作成しました。`;
 }
 
 function buildQuestion(q, no) {
-  const wrongIndexes = q.choices.map((_, i) => i).filter((i) => i !== q.answerIndex);
+  const wrongIndexes = q.choices
+    .map((_, i) => i)
+    .filter((i) => i !== q.answerIndex);
+
   const pickedWrong = shuffle([...wrongIndexes]).slice(0, 2);
   const shownIndexes = shuffle([q.answerIndex, ...pickedWrong]);
 
   const shownChoices = shownIndexes.map((idx) => ({
     originalIndex: idx,
-    text: q.choices[idx]
+    text: q.choices[idx],
   }));
 
   const correctDisplayIndex = shownIndexes.indexOf(q.answerIndex);
@@ -209,19 +179,19 @@ function buildQuestion(q, no) {
     question: q.question,
     shownChoices,
     correctDisplayIndex,
-    correctText: q.choices[q.answerIndex]
+    correctText: q.choices[q.answerIndex],
   };
+}
+
+function getDensityClass(items) {
+  if (items.length >= 9) return "density-tight";
+  if (items.length >= 7) return "density-compact";
+  return "density-normal";
 }
 
 function renderPaper(title, items) {
   const labels = ["ア", "イ", "ウ"];
-
-  let densityClass = "density-normal";
-  if (items.length >= 9) {
-    densityClass = "density-tight";
-  } else if (items.length >= 7) {
-    densityClass = "density-compact";
-  }
+  const densityClass = getDensityClass(items);
 
   paperArea.className = `preview-sheet ${densityClass}`;
 
@@ -235,52 +205,73 @@ function renderPaper(title, items) {
       <div>得点：<span class="score-box"></span> 点</div>
     </div>
 
-    ${items.map((item) => `
+    ${items
+      .map(
+        (item) => `
       <div class="question">
-  <div class="answer-row">
-    <div class="answer-box answer-box-filled">
-      ${labels[item.correctDisplayIndex]}
-    </div>
-    <div>
-      <strong>${item.no}.</strong>
-      <span class="question-title-inline">${escapeHtml(item.title)}</span>
-      ${escapeHtml(item.question)}
-    </div>
-  </div>
+        <div class="answer-row">
+          <div class="answer-box"></div>
+          <div>
+            <strong>${item.no}.</strong>
+            <span class="question-title-inline">${escapeHtml(item.title)}</span>
+            ${escapeHtml(item.question)}
+          </div>
+        </div>
 
-        ${item.shownChoices.map((c, i) => `
+        ${item.shownChoices
+          .map(
+            (c, i) => `
           <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
-        `).join("")}
+        `
+          )
+          .join("")}
       </div>
-    `).join("")}
+    `
+      )
+      .join("")}
   `;
 }
 
 function renderAnswers(title, items) {
   const labels = ["ア", "イ", "ウ"];
-
-  let densityClass = "density-normal";
-  if (items.length >= 9) {
-    densityClass = "density-tight";
-  } else if (items.length >= 7) {
-    densityClass = "density-compact";
-  }
+  const densityClass = getDensityClass(items);
 
   answerArea.className = `preview-sheet ${densityClass}`;
 
   answerArea.innerHTML = `
     <h1 class="paper-title">${escapeHtml(title)} 解答</h1>
 
-    ${items.map((item) => `
+    <div class="test-info single-line">
+      <div>組：<span class="test-line class-line"></span></div>
+      <div>番号：<span class="test-line no-line"></span></div>
+      <div>氏名：<span class="test-line name-line"></span></div>
+      <div>得点：<span class="score-box"></span> 点</div>
+    </div>
+
+    ${items
+      .map(
+        (item) => `
       <div class="question">
-        <div>
-          <strong>${item.no}.</strong>
-          <span class="question-title-inline">${escapeHtml(item.title)}</span>
-          ${escapeHtml(item.question)}
+        <div class="answer-row">
+          <div class="answer-box answer-box-filled">${labels[item.correctDisplayIndex]}</div>
+          <div>
+            <strong>${item.no}.</strong>
+            <span class="question-title-inline">${escapeHtml(item.title)}</span>
+            ${escapeHtml(item.question)}
+          </div>
         </div>
-        <div class="answer-line">正解：${labels[item.correctDisplayIndex]}（${escapeHtml(item.correctText)}）</div>
+
+        ${item.shownChoices
+          .map(
+            (c, i) => `
+          <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
+        `
+          )
+          .join("")}
       </div>
-    `).join("")}
+    `
+      )
+      .join("")}
   `;
 }
 
@@ -290,8 +281,14 @@ function printMode(mode) {
     return;
   }
 
-  const paperCard = document.querySelectorAll(".card")[3];
-  const answerCard = document.querySelectorAll(".card")[4];
+  const allCards = document.querySelectorAll(".card");
+  const paperCard = allCards[2];
+  const answerCard = allCards[3];
+
+  if (!paperCard || !answerCard) {
+    statusEl.textContent = "印刷対象が見つかりません。";
+    return;
+  }
 
   if (mode === "questions") {
     answerCard.classList.add("hidden-print");
