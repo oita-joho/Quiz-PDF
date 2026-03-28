@@ -17,21 +17,16 @@
       <div class="grid">
         <div>
           <label>タイトル</label>
-          <input id="titleInput" value="" />
+          <input id="titleInput" value="" placeholder="未入力ならCSVのタイトルを使用" />
         </div>
         <div>
           <label>作成問題数</label>
           <input id="countInput" type="number" min="1" value="5" />
         </div>
         <div>
-          <label>分野番号（カンマ区切り）</label>
-          <input id="fieldInput" value="" />
+          <label>CSV読み込み</label>
+          <input id="csvFileInput" type="file" accept=".csv,text/csv" />
         </div>
-      </div>
-
-      <div class="file-box">
-        <label>手元のCSVファイルを読み込む</label>
-        <input id="csvFileInput" type="file" accept=".csv,text/csv" />
       </div>
 
       <div class="row top-buttons">
@@ -42,6 +37,13 @@
       </div>
 
       <div id="status" class="small">まだ読み込んでいません。</div>
+    </div>
+
+    <div class="card hidden-print">
+      <h2>出題するタイトルを選択</h2>
+      <div id="titleCheckList" class="checklist-box">
+        まだ読み込んでいません。
+      </div>
     </div>
 
     <div class="card">
