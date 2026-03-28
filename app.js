@@ -210,7 +210,7 @@ function renderPaper(title, items) {
         (item) => `
       <div class="question">
         <div class="answer-row">
-          <div class="answer-box"></div>
+          <div class="answer-box answer-box-filled">${labels[item.correctDisplayIndex]}</div>
           <div>
             <strong>${item.no}.</strong>
             <span class="question-title-inline">${escapeHtml(item.title)}</span>
