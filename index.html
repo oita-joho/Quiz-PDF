@@ -10,7 +10,7 @@
   <div class="wrap">
     <div class="card hidden-print">
       <h1>3択問題PDF作成ツール</h1>
-      <div class="small">questions.csv を読み込み、正解を含む3択を自動作成して問題紙と解答紙を作ります。</div>
+      <div class="small">CSVを読み込み、正解を含む3択を自動作成して問題紙と解答紙を作ります。</div>
     </div>
 
     <div class="card hidden-print">
@@ -20,7 +20,7 @@
           <input id="titleInput" value="" />
         </div>
         <div>
-          <label>出題問数</label>
+          <label>作成問題数</label>
           <input id="countInput" type="number" min="1" value="5" />
         </div>
         <div>
@@ -29,8 +29,13 @@
         </div>
       </div>
 
+      <div class="file-box">
+        <label>手元のCSVファイルを読み込む</label>
+        <input id="csvFileInput" type="file" accept=".csv,text/csv" />
+      </div>
+
       <div class="row top-buttons">
-        <button id="loadBtn">問題を読み込む</button>
+        <button id="loadBtn">GitHub上のCSVを読み込む</button>
         <button id="makeBtn" class="success">問題を作成</button>
         <button id="printQuestionsBtn" class="secondary">問題を印刷/PDF保存</button>
         <button id="printAnswersBtn" class="secondary">解答を印刷/PDF保存</button>
@@ -41,7 +46,7 @@
 
     <div class="card hidden-print">
       <h2>読み込み済み問題一覧</h2>
-      <div id="tableBox" class="small">questions.csv を読み込むと表示されます。</div>
+      <div id="tableBox" class="small">CSVを読み込むと表示されます。</div>
     </div>
 
     <div class="card">
