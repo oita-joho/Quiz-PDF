@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
 body {
   margin: 0;
   font-family: sans-serif;
@@ -93,14 +98,22 @@ button.success {
 .preview-sheet {
   background: white;
   color: black;
-  padding: 24px 24px 24px 56px;
+  width: 100%;
+  height: 267mm;
+  padding: 10mm 12mm 10mm 16mm;
   border: 1px solid #dbe4f0;
   border-radius: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .paper-title {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .test-info.single-line {
@@ -108,8 +121,8 @@ button.success {
   align-items: center;
   gap: 18px;
   flex-wrap: nowrap;
-  margin-bottom: 18px;
-  font-size: 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
 }
 
 .test-line {
@@ -133,33 +146,21 @@ button.success {
 
 .score-box {
   display: inline-block;
-  width: 42px;
-  height: 1.6em;
-  border: 1px solid #000;
+  width: 64px;
+  height: 30px;
+  border: 2px solid #000;
   vertical-align: middle;
 }
 
 .question {
-  margin-bottom: 16px;
-  line-height: 1.7;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .answer-row {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-}
-
-.answer-box {
-  width: 32px;
-  height: 32px;
-  border: 2px solid #000;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.choice {
-  margin-left: 3.5em;
 }
 
 .question-title-inline {
@@ -187,6 +188,76 @@ td {
 
 .hidden-print {
   display: block;
+}
+
+/* 1〜6問 */
+.preview-sheet.density-normal .question {
+  margin-bottom: 14px;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.preview-sheet.density-normal .choice {
+  margin-left: 3.5em;
+  margin-top: 3px;
+}
+
+.preview-sheet.density-normal .answer-box {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #000;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 7〜8問 */
+.preview-sheet.density-compact .question {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.preview-sheet.density-compact .choice {
+  margin-left: 3.3em;
+  margin-top: 2px;
+}
+
+.preview-sheet.density-compact .answer-box {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #000;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 9〜10問 */
+.preview-sheet.density-tight .question {
+  margin-bottom: 7px;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.preview-sheet.density-tight .choice {
+  margin-left: 3.1em;
+  margin-top: 1px;
+}
+
+.preview-sheet.density-tight .answer-box {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #000;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.preview-sheet.density-tight .paper-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.preview-sheet.density-tight .test-info.single-line {
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 @media (max-width: 860px) {
@@ -228,11 +299,8 @@ td {
   .preview-sheet {
     border: none;
     border-radius: 0;
-    padding: 12mm 12mm 12mm 18mm;
-  }
-
-  .page-break {
-    break-before: page;
-    page-break-before: always;
+    height: 267mm;
+    padding: 10mm 12mm 10mm 16mm;
+    overflow: hidden;
   }
 }
