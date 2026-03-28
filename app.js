@@ -203,12 +203,11 @@ function renderPaper(title, items) {
   paperArea.innerHTML = `
     <h1 class="paper-title">${escapeHtml(title)}</h1>
 
-    <div class="test-info">
-      <div class="test-info-row">
-        <div>クラス：<span class="test-line" style="min-width:100px;"></span></div>
-        <div>番号：<span class="test-line" style="min-width:70px;"></span></div>
-        <div>氏名：<span class="test-line" style="min-width:180px;"></span></div>
-      </div>
+    <div class="test-info single-line">
+      <div>組：<span class="test-line class-line"></span></div>
+      <div>番号：<span class="test-line no-line"></span></div>
+      <div>氏名：<span class="test-line name-line"></span></div>
+      <div>得点：<span class="score-box"></span> 点</div>
     </div>
 
     ${items.map(item => `
