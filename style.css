@@ -186,3 +186,38 @@ td {
     page-break-before: always;
   }
 }
+.test-info.single-line {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: nowrap;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.test-line {
+  display: inline-block;
+  border-bottom: 1px solid #000;
+  height: 1.2em;
+  vertical-align: bottom;
+}
+
+.class-line {
+  width: 70px;
+}
+
+.no-line {
+  width: 55px;
+}
+
+.name-line {
+  width: 180px;
+}
+
+.score-box {
+  display: inline-block;
+  width: 42px;
+  border: 1px solid #000;
+  height: 1.6em;
+  vertical-align: middle;
+}
