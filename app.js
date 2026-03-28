@@ -1,15 +1,15 @@
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
 const paperArea = $("paperArea");
-const answerArea = $("answerArea");
 
 let allQuestions = [];
 let generated = [];
+let currentTitle = "";
 
 $("loadBtn").addEventListener("click", loadCsv);
 $("makeBtn").addEventListener("click", makeQuiz);
-$("printQuestionsBtn").addEventListener("click", () => printMode("questions"));
-$("printAnswersBtn").addEventListener("click", () => printMode("answers"));
+$("printQuestionsBtn").addEventListener("click", () => printMode("question"));
+$("printAnswersBtn").addEventListener("click", () => printMode("answer"));
 $("csvFileInput").addEventListener("change", loadLocalCsv);
 
 async function loadCsv() {
@@ -149,11 +149,10 @@ function makeQuiz() {
     .map((q, i) => buildQuestion(q, i + 1));
 
   const csvTitle = generated[0]?.title || "";
-  const title = inputTitle || csvTitle || "小テスト";
+  currentTitle = inputTitle || csvTitle || "小テスト";
 
-  renderPaper(title, generated);
-  renderAnswers(title, generated);
-  statusEl.textContent = `${title} を ${generated.length}問作成しました。`;
+  renderPaper(currentTitle, generated, "answer");
+  statusEl.textContent = `${currentTitle} を ${generated.length}問作成しました。`;
 }
 
 function buildQuestion(q, no) {
@@ -189,7 +188,7 @@ function getDensityClass(items) {
   return "density-normal";
 }
 
-function renderPaper(title, items) {
+function renderPaper(title, items, mode = "answer") {
   const labels = ["ア", "イ", "ウ"];
   const densityClass = getDensityClass(items);
 
@@ -210,50 +209,9 @@ function renderPaper(title, items) {
         (item) => `
       <div class="question">
         <div class="answer-row">
-          <div class="answer-box answer-box-filled">${labels[item.correctDisplayIndex]}</div>
-          <div>
-            <strong>${item.no}.</strong>
-            <span class="question-title-inline">${escapeHtml(item.title)}</span>
-            ${escapeHtml(item.question)}
+          <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
+            ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
           </div>
-        </div>
-
-        ${item.shownChoices
-          .map(
-            (c, i) => `
-          <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
-        `
-          )
-          .join("")}
-      </div>
-    `
-      )
-      .join("")}
-  `;
-}
-
-function renderAnswers(title, items) {
-  const labels = ["ア", "イ", "ウ"];
-  const densityClass = getDensityClass(items);
-
-  answerArea.className = `preview-sheet ${densityClass}`;
-
-  answerArea.innerHTML = `
-    <h1 class="paper-title">${escapeHtml(title)} 解答</h1>
-
-    <div class="test-info single-line">
-      <div>組：<span class="test-line class-line"></span></div>
-      <div>番号：<span class="test-line no-line"></span></div>
-      <div>氏名：<span class="test-line name-line"></span></div>
-      <div>得点：<span class="score-box"></span> 点</div>
-    </div>
-
-    ${items
-      .map(
-        (item) => `
-      <div class="question">
-        <div class="answer-row">
-          <div class="answer-box answer-box-filled">${labels[item.correctDisplayIndex]}</div>
           <div>
             <strong>${item.no}.</strong>
             <span class="question-title-inline">${escapeHtml(item.title)}</span>
@@ -281,27 +239,9 @@ function printMode(mode) {
     return;
   }
 
-  const allCards = document.querySelectorAll(".card");
-  const paperCard = allCards[2];
-  const answerCard = allCards[3];
-
-  if (!paperCard || !answerCard) {
-    statusEl.textContent = "印刷対象が見つかりません。";
-    return;
-  }
-
-  if (mode === "questions") {
-    answerCard.classList.add("hidden-print");
-    paperCard.classList.remove("hidden-print");
-  } else {
-    paperCard.classList.add("hidden-print");
-    answerCard.classList.remove("hidden-print");
-  }
-
+  renderPaper(currentTitle, generated, mode);
   window.print();
-
-  paperCard.classList.remove("hidden-print");
-  answerCard.classList.remove("hidden-print");
+  renderPaper(currentTitle, generated, "answer");
 }
 
 function shuffle(arr) {
