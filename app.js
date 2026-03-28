@@ -1,6 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
 const paperArea = $("paperArea");
+const titleCheckList = $("titleCheckList");
 
 let allQuestions = [];
 let generated = [];
@@ -18,7 +19,7 @@ async function loadCsv() {
     if (!res.ok) throw new Error("questions.csv が見つかりません。");
 
     const text = await res.text();
-    allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
+    loadQuestionsFromText(text);
     statusEl.textContent = `${allQuestions.length}問を読み込みました。`;
   } catch (err) {
     console.error(err);
@@ -32,12 +33,17 @@ async function loadLocalCsv(event) {
 
   try {
     const text = await file.text();
-    allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
+    loadQuestionsFromText(text);
     statusEl.textContent = `${file.name} を読み込みました。${allQuestions.length}問あります。`;
   } catch (err) {
     console.error(err);
     statusEl.textContent = "ローカルCSVの読み込みに失敗しました。";
   }
+}
+
+function loadQuestionsFromText(text) {
+  allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
+  renderTitleCheckList(allQuestions);
 }
 
 function parseCsv(text) {
@@ -113,6 +119,7 @@ function normalizeRow(r) {
   if (compactAnswerIndex === -1) return null;
 
   return {
+    title_no: String(r.title_no || "").trim(),
     title: String(r.title || "").trim(),
     field_no: String(r.field_no || "").trim(),
     question_no: String(r.question_no || "").trim(),
@@ -122,22 +129,60 @@ function normalizeRow(r) {
   };
 }
 
+function renderTitleCheckList(rows) {
+  if (!rows.length) {
+    titleCheckList.innerHTML = "表示できるタイトルがありません。";
+    return;
+  }
+
+  const uniqueMap = new Map();
+  rows.forEach((q) => {
+    const key = q.title_no || q.title;
+    if (!uniqueMap.has(key)) {
+      uniqueMap.set(key, {
+        title_no: q.title_no,
+        title: q.title,
+        field_no: q.field_no,
+      });
+    }
+  });
+
+  const list = [...uniqueMap.values()].sort((a, b) => {
+    return String(a.title_no).localeCompare(String(b.title_no), "ja");
+  });
+
+  titleCheckList.innerHTML = list
+    .map(
+      (item) => `
+      <label class="check-item">
+        <input type="checkbox" class="title-check" value="${escapeHtml(item.title_no)}" checked>
+        <span>${escapeHtml(item.title_no)}：${escapeHtml(item.title)}（分野 ${escapeHtml(item.field_no)}）</span>
+      </label>
+    `
+    )
+    .join("");
+}
+
+function getSelectedTitleNos() {
+  return [...document.querySelectorAll(".title-check:checked")].map((el) => el.value);
+}
+
 function makeQuiz() {
   if (!allQuestions.length) {
     statusEl.textContent = "先にCSVを読み込んでください。";
     return;
   }
 
+  const selectedTitleNos = getSelectedTitleNos();
+  if (!selectedTitleNos.length) {
+    statusEl.textContent = "タイトルを1つ以上選んでください。";
+    return;
+  }
+
   const inputTitle = $("titleInput").value.trim();
   const count = Math.max(1, Number($("countInput").value || 5));
-  const fields = $("fieldInput").value
-    .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean);
 
-  const pool = fields.length
-    ? allQuestions.filter((q) => fields.includes(q.field_no))
-    : [...allQuestions];
+  const pool = allQuestions.filter((q) => selectedTitleNos.includes(q.title_no));
 
   if (pool.length < count) {
     statusEl.textContent = `対象問題が不足しています。現在 ${pool.length}問、必要 ${count}問です。`;
@@ -148,7 +193,8 @@ function makeQuiz() {
     .slice(0, count)
     .map((q, i) => buildQuestion(q, i + 1));
 
-  const csvTitle = generated[0]?.title || "";
+  const uniqueTitles = [...new Set(generated.map((q) => q.title).filter(Boolean))];
+  const csvTitle = uniqueTitles.join("・");
   currentTitle = inputTitle || csvTitle || "小テスト";
 
   renderPaper(currentTitle, generated, "answer");
@@ -172,6 +218,7 @@ function buildQuestion(q, no) {
 
   return {
     no,
+    title_no: q.title_no,
     title: q.title,
     field_no: q.field_no,
     question_no: q.question_no,
