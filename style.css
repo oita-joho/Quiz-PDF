@@ -300,4 +300,20 @@ button.success {
     padding: 10mm 12mm 10mm 16mm;
     overflow: hidden;
   }
+  .checklist-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+}
+
+.check-item input[type="checkbox"] {
+  width: auto;
+}
 }
