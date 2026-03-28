@@ -179,9 +179,10 @@ button.success {
   justify-content: center;
   font-weight: 700;
   font-size: 16px;
-  color: #000;
 }
-
+.answer-red {
+  color: #d00000;
+}
 .hidden-print {
   display: block;
 }
