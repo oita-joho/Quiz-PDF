@@ -11,6 +11,7 @@ $("loadBtn").addEventListener("click", loadCsv);
 $("makeBtn").addEventListener("click", makeQuiz);
 $("printQuestionsBtn").addEventListener("click", () => printMode("questions"));
 $("printAnswersBtn").addEventListener("click", () => printMode("answers"));
+$("csvFileInput").addEventListener("change", loadLocalCsv);
 
 async function loadCsv() {
   try {
@@ -24,6 +25,21 @@ async function loadCsv() {
   } catch (err) {
     console.error(err);
     statusEl.textContent = "読み込み失敗: " + err.message;
+  }
+}
+
+async function loadLocalCsv(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
+    renderTable(allQuestions);
+    statusEl.textContent = `${file.name} を読み込みました。${allQuestions.length}問あります。`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "ローカルCSVの読み込みに失敗しました。";
   }
 }
 
@@ -89,10 +105,10 @@ function normalizeRow(r) {
   const answerNo = Number(r.answer_no);
 
   if (!r.question || choices.length < 3) return null;
-  if (!(answerNo >= 1 && answerNo <= rawChoices.length)) return null;
-  if (!rawChoices[answerNo - 1] || rawChoices[answerNo - 1].trim() === "") return null;
+  if (!(answerNo >= 1 && answerNo <= 10)) return null;
+  if (!rawChoices[answerNo - 1]) return null;
 
-  const correctText = rawChoices[answerNo - 1].trim();
+  const correctText = rawChoices[answerNo - 1];
   const compactAnswerIndex = choices.indexOf(correctText);
 
   if (compactAnswerIndex === -1) return null;
@@ -141,12 +157,12 @@ function renderTable(rows) {
 
 function makeQuiz() {
   if (!allQuestions.length) {
-    statusEl.textContent = "先に questions.csv を読み込んでください。";
+    statusEl.textContent = "先にCSVを読み込んでください。";
     return;
   }
 
   const inputTitle = $("titleInput").value.trim();
-  const count = Math.max(1, Number($("countInput").value || 10));
+  const count = Math.max(1, Number($("countInput").value || 5));
   const fields = $("fieldInput").value
     .split(",")
     .map((v) => v.trim())
@@ -210,12 +226,13 @@ function renderPaper(title, items) {
       <div>得点：<span class="score-box"></span> 点</div>
     </div>
 
-    ${items.map(item => `
+    ${items.map((item) => `
       <div class="question">
         <div class="answer-row">
           <div class="answer-box"></div>
           <div>
             <strong>${item.no}.</strong>
+            <span class="question-title-inline">${escapeHtml(item.title)}</span>
             ${escapeHtml(item.question)}
           </div>
         </div>
@@ -236,7 +253,11 @@ function renderAnswers(title, items) {
 
     ${items.map((item) => `
       <div class="question">
-        <div><strong>${item.no}.</strong> [分野${escapeHtml(item.field_no)}] ${escapeHtml(item.question)}</div>
+        <div>
+          <strong>${item.no}.</strong>
+          <span class="question-title-inline">${escapeHtml(item.title)}</span>
+          ${escapeHtml(item.question)}
+        </div>
         <div class="answer-line">正解：${labels[item.correctDisplayIndex]}（${escapeHtml(item.correctText)}）</div>
       </div>
     `).join("")}
