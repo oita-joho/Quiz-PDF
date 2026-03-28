@@ -203,13 +203,20 @@ function renderPaper(title, items) {
   paperArea.innerHTML = `
     <h1 class="paper-title">${escapeHtml(title)}</h1>
 
-    ${items.map((item) => `
+    <div class="test-info">
+      <div class="test-info-row">
+        <div>クラス：<span class="test-line" style="min-width:100px;"></span></div>
+        <div>番号：<span class="test-line" style="min-width:70px;"></span></div>
+        <div>氏名：<span class="test-line" style="min-width:180px;"></span></div>
+      </div>
+    </div>
+
+    ${items.map(item => `
       <div class="question">
         <div class="answer-row">
           <div class="answer-box"></div>
           <div>
             <strong>${item.no}.</strong>
-            [分野${escapeHtml(item.field_no)}]
             ${escapeHtml(item.question)}
           </div>
         </div>
