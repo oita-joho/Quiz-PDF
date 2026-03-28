@@ -12,6 +12,8 @@ $("makeBtn").addEventListener("click", makeQuiz);
 $("printQuestionsBtn").addEventListener("click", () => printMode("question"));
 $("printAnswersBtn").addEventListener("click", () => printMode("answer"));
 $("csvFileInput").addEventListener("change", loadLocalCsv);
+$("selectAllBtn").addEventListener("click", selectAllTitles);
+$("clearAllBtn").addEventListener("click", clearAllTitles);
 
 async function loadCsv() {
   try {
@@ -307,5 +309,15 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+function selectAllTitles() {
+  document.querySelectorAll(".title-check").forEach((el) => {
+    el.checked = true;
+  });
+}
 
+function clearAllTitles() {
+  document.querySelectorAll(".title-check").forEach((el) => {
+    el.checked = false;
+  });
+}
 loadCsv();
