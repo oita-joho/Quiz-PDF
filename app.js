@@ -216,6 +216,15 @@ function buildQuestion(q, no) {
 function renderPaper(title, items) {
   const labels = ["ア", "イ", "ウ"];
 
+  let densityClass = "density-normal";
+  if (items.length >= 9) {
+    densityClass = "density-tight";
+  } else if (items.length >= 7) {
+    densityClass = "density-compact";
+  }
+
+  paperArea.className = `preview-sheet ${densityClass}`;
+
   paperArea.innerHTML = `
     <h1 class="paper-title">${escapeHtml(title)}</h1>
 
@@ -247,6 +256,15 @@ function renderPaper(title, items) {
 
 function renderAnswers(title, items) {
   const labels = ["ア", "イ", "ウ"];
+
+  let densityClass = "density-normal";
+  if (items.length >= 9) {
+    densityClass = "density-tight";
+  } else if (items.length >= 7) {
+    densityClass = "density-compact";
+  }
+
+  answerArea.className = `preview-sheet ${densityClass}`;
 
   answerArea.innerHTML = `
     <h1 class="paper-title">${escapeHtml(title)} 解答</h1>
