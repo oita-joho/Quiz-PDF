@@ -185,7 +185,7 @@ function makeQuiz() {
   const title = inputTitle || csvTitle || "小テスト";
 
   renderPaper(title, generated);
-  renderAnswers(title, generated);
+  //renderAnswers(title, generated);
   statusEl.textContent = `${title} を ${generated.length}問作成しました。`;
 }
 
@@ -237,14 +237,16 @@ function renderPaper(title, items) {
 
     ${items.map((item) => `
       <div class="question">
-        <div class="answer-row">
-          <div class="answer-box"></div>
-          <div>
-            <strong>${item.no}.</strong>
-            <span class="question-title-inline">${escapeHtml(item.title)}</span>
-            ${escapeHtml(item.question)}
-          </div>
-        </div>
+  <div class="answer-row">
+    <div class="answer-box answer-box-filled">
+      ${labels[item.correctDisplayIndex]}
+    </div>
+    <div>
+      <strong>${item.no}.</strong>
+      <span class="question-title-inline">${escapeHtml(item.title)}</span>
+      ${escapeHtml(item.question)}
+    </div>
+  </div>
 
         ${item.shownChoices.map((c, i) => `
           <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
