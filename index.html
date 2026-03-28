@@ -234,20 +234,43 @@
     }
 
     function renderPaper(title, items) {
-      const labels = ["ア", "イ", "ウ"];
-      paperArea.innerHTML = `
-        <h1 style="text-align:center; margin-bottom:6px;">${escapeHtml(title)}</h1>
-        <div style="text-align:center; margin-bottom:18px;">3択問題　全${items.length}問</div>
-        ${items.map(item => `
-          <div class="question">
-            <div><strong>${item.no}.</strong> [分野${escapeHtml(item.field_no)}] ${escapeHtml(item.question)}</div>
-            ${item.shownChoices.map((c, i) => `
-              <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
-            `).join("")}
+  const labels = ["ア", "イ", "ウ"];
+  paperArea.innerHTML = `
+    <h1 style="text-align:center; margin-bottom:6px;">${escapeHtml(title)}</h1>
+
+    <div class="test-info">
+      <div class="test-info-row">
+        <div>学校名：<span class="test-line"></span></div>
+        <div>実施日：<span class="test-line" style="min-width:120px;"></span></div>
+      </div>
+      <div class="test-info-row">
+        <div>クラス：<span class="test-line" style="min-width:100px;"></span></div>
+        <div>番号：<span class="test-line" style="min-width:70px;"></span></div>
+        <div>氏名：<span class="test-line" style="min-width:180px;"></span></div>
+        <div>得点：<span class="score-box"></span> 点</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-bottom:18px;">3択問題　全${items.length}問</div>
+
+    ${items.map(item => `
+      <div class="question">
+        <div class="answer-row">
+          <div class="answer-box"></div>
+          <div>
+            <strong>${item.no}.</strong>
+            [分野${escapeHtml(item.field_no)}]
+            ${escapeHtml(item.question)}
           </div>
+        </div>
+
+        ${item.shownChoices.map((c, i) => `
+          <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
         `).join("")}
-      `;
-    }
+      </div>
+    `).join("")}
+  `;
+}
 
     function renderAnswers(title, items) {
       const labels = ["ア", "イ", "ウ"];
