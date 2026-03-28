@@ -1,56 +1,71 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>3択問題PDF作成</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card hidden-print">
-      <h1>3択問題PDF作成ツール</h1>
-      <div class="small">CSVを読み込み、正解を含む3択を自動作成して問題紙と解答紙を作ります。</div>
+<div class="wrap">
+
+  <div class="card hidden-print">
+    <h1>3択問題PDF作成ツール</h1>
+    <div class="small">CSVから問題を作成し、問題用・解答用PDFを出力できます</div>
+  </div>
+
+  <div class="card hidden-print">
+    <div class="grid">
+      <div>
+        <label>タイトル</label>
+        <input id="titleInput">
+      </div>
+
+      <div>
+        <label>問題数</label>
+        <input id="countInput" type="number" value="5">
+      </div>
+
+      <div>
+        <label>分野番号（任意）</label>
+        <input id="fieldInput">
+      </div>
     </div>
 
-    <div class="card hidden-print">
-      <div class="grid">
-        <div>
-          <label>タイトル</label>
-          <input id="titleInput" value="" />
-        </div>
-        <div>
-          <label>作成問題数</label>
-          <input id="countInput" type="number" min="1" value="5" />
-        </div>
-        <div>
-          <label>分野番号（カンマ区切り）</label>
-          <input id="fieldInput" value="" />
-        </div>
-      </div>
+    <div class="file-box">
+      <label>CSVファイル読み込み</label>
+      <input id="csvFileInput" type="file" accept=".csv">
+    </div>
 
-      <div class="file-box">
-        <label>手元のCSVファイルを読み込む</label>
-        <input id="csvFileInput" type="file" accept=".csv,text/csv" />
-      </div>
+    <div class="row top-buttons">
+      <button id="loadBtn">GitHubのCSVを読み込む</button>
+      <button id="makeBtn" class="success">問題を作成</button>
+      <button id="printQuestionsBtn" class="secondary">問題を印刷/PDF保存</button>
+      <button id="printAnswersBtn" class="secondary">解答を印刷/PDF保存</button>
+    </div>
 
-      <div class="row top-buttons">
-        <button id="loadBtn">GitHub上のCSVを読み込む</button>
-        <button id="makeBtn" class="success">問題を作成</button>
-        <button id="printQuestionsBtn" class="secondary">プレビューを印刷/PDF保存</button>
-<button id="printAnswersBtn" class="secondary">解答を印刷/PDF保存</button>
-      </div>
-
-<div class="card">
-  <h2 class="hidden-print">プレビュー</h2>
-  <div id="paperArea" class="preview-sheet">
-    <div>まだ作成していません。</div>
+    <div id="status" class="small">未読み込み</div>
   </div>
+
+  <!-- 問題 -->
+  <div class="card">
+    <h2 class="hidden-print">問題プレビュー</h2>
+    <div id="paperArea" class="preview-sheet">
+      未作成
+    </div>
+  </div>
+
+  <!-- 解答 -->
+  <div class="card">
+    <h2 class="hidden-print">解答プレビュー</h2>
+    <div id="answerArea" class="preview-sheet">
+      未作成
+    </div>
+  </div>
+
 </div>
 
-  
-  </div>
-
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
