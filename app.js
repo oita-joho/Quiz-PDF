@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+
 const statusEl = $("status");
 const paperArea = $("paperArea");
 const titleCheckList = $("titleCheckList");
@@ -14,6 +15,7 @@ $("printAnswersBtn").addEventListener("click", () => printMode("answer"));
 $("csvFileInput").addEventListener("change", loadLocalCsv);
 $("selectAllBtn").addEventListener("click", selectAllTitles);
 $("clearAllBtn").addEventListener("click", clearAllTitles);
+$("resetBtn").addEventListener("click", resetAll);
 
 async function loadCsv() {
   try {
@@ -319,5 +321,24 @@ function clearAllTitles() {
   document.querySelectorAll(".title-check").forEach((el) => {
     el.checked = false;
   });
+}
+function resetAll() {
+  if (!confirm("すべてのデータを初期化しますか？")) return;
+
+  // データリセット
+  allQuestions = [];
+  generated = [];
+  currentTitle = "";
+
+  // 入力リセット
+  $("titleInput").value = "";
+  $("countInput").value = 5;
+  $("csvFileInput").value = "";
+
+  // 表示リセット
+  titleCheckList.innerHTML = "まだ読み込んでいません。";
+  paperArea.innerHTML = "<div>まだ作成していません。</div>";
+
+  statusEl.textContent = "初期化しました。";
 }
 loadCsv();
