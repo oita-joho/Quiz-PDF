@@ -322,7 +322,28 @@ td {
   .question-image {
     margin-left: 40px;
   }
+/* デフォルト（画面）では表示 */
+.answer-line,
+.answer-box-filled,
+.answer-red {
+  display: block;
+}
 
+/* 問題用PDF（デフォルト）では非表示 */
+@media print {
+  body.print-question .answer-line,
+  body.print-question .answer-box-filled,
+  body.print-question .answer-red {
+    display: none !important;
+  }
+
+  /* 解答用PDFでは表示 */
+  body.print-answer .answer-line,
+  body.print-answer .answer-box-filled,
+  body.print-answer .answer-red {
+    display: block !important;
+  }
+}
   .question-image img {
     max-height: 180px;
   }
