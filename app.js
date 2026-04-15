@@ -292,6 +292,8 @@ function printMode(mode) {
 
   renderPaper(currentTitle, generated, mode);
   window.print();
+
+  /* 印刷後は画面表示を正解ありに戻す */
   renderPaper(currentTitle, generated, "answer");
 }
 
