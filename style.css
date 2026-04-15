@@ -206,9 +206,8 @@ button.success {
   font-weight: 700;
   font-size: 16px;
 }
-
 .answer-red {
-    color: transparent;
+  color: transparent;
   opacity: 0;
 }
 
