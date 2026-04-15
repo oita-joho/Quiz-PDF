@@ -208,7 +208,8 @@ button.success {
 }
 
 .answer-red {
-  color: white;
+    color: transparent;
+  opacity: 0;
 }
 
 .question-title-inline {
