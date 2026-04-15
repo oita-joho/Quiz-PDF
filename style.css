@@ -335,18 +335,23 @@ td {
   display: block;
 }
 
-/* 印刷時のデフォルト（＝問題用） */
 @media print {
+
+  /* 正解・解説・赤文字を全部強制的に消す */
   .answer-line,
   .answer-box-filled,
-  .answer-red {
+  .answer-red,
+  [class*="answer"],
+  [id*="answer"] {
     display: none !important;
   }
 
-  /* 解答用だけ表示 */
+  /* 解答PDFのときだけ復活 */
   body.print-answer .answer-line,
   body.print-answer .answer-box-filled,
-  body.print-answer .answer-red {
+  body.print-answer .answer-red,
+  body.print-answer [class*="answer"],
+  body.print-answer [id*="answer"] {
     display: block !important;
   }
 }
