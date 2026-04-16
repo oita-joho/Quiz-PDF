@@ -10,8 +10,8 @@ let currentTitle = "";
 
 $("loadBtn").addEventListener("click", loadCsv);
 $("makeBtn").addEventListener("click", makeQuiz);
-$("printQuestionsBtn").addEventListener("click", () => printMode("question"));
-$("printAnswersBtn").addEventListener("click", () => printMode("answer"));
+$("printQuestionsBtn").addEventListener("click", () => savePdf("question"));
+$("printAnswersBtn").addEventListener("click", () => savePdf("answer"));
 $("csvFileInput").addEventListener("change", loadLocalCsv);
 $("selectAllBtn").addEventListener("click", selectAllTitles);
 $("clearAllBtn").addEventListener("click", clearAllTitles);
@@ -284,19 +284,54 @@ function renderPaper(title, items, mode = "answer") {
   `;
 }
 
-function printMode(mode) {
+async function savePdf(mode) {
   if (!generated.length) {
     statusEl.textContent = "先に問題を作成してください。";
     return;
   }
 
+  // 指定モードで一時描画
   renderPaper(currentTitle, generated, mode);
-  window.print();
 
-  /* 印刷後は画面表示を正解ありに戻す */
-  renderPaper(currentTitle, generated, "answer");
+  // 描画反映待ち
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  const filename =
+    mode === "question"
+      ? `${currentTitle}_問題.pdf`
+      : `${currentTitle}_解答.pdf`;
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    },
+    pagebreak: { mode: ["css", "legacy"] }
+  };
+
+  try {
+    await html2pdf().set(opt).from(paperArea).save();
+    statusEl.textContent =
+      mode === "question"
+        ? "問題PDFを作成しました。"
+        : "解答PDFを作成しました。";
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "PDF作成に失敗しました。";
+  } finally {
+    // 画面は解答ありに戻す
+    renderPaper(currentTitle, generated, "answer");
+  }
 }
-
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
