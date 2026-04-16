@@ -76,6 +76,10 @@ button.success {
   background: #16a34a;
 }
 
+button.danger {
+  background: #dc2626;
+}
+
 .row {
   display: flex;
   gap: 10px;
@@ -127,7 +131,6 @@ button.success {
   padding: 12mm 14mm 12mm 18mm;
   border: 1px solid #dbe4f0;
   border-radius: 12px;
-  box-sizing: border-box;
 }
 
 /* タイトル */
@@ -206,9 +209,10 @@ button.success {
   font-weight: 700;
   font-size: 16px;
 }
+
 .answer-red {
-  color: transparent;
-  opacity: 0;
+  color: #d00000;
+  opacity: 1;
 }
 
 .question-title-inline {
@@ -322,17 +326,8 @@ td {
   .question-image {
     margin-left: 40px;
   }
-/* デフォルト（画面）では表示 */
-.answer-line,
-.answer-box-filled,
-.answer-red {
-  display: block;
-}
-/* 画面では表示 */
-.answer-line,
-.answer-box-filled,
-.answer-red {
-  display: block;
-}
 
-
+  .question-image img {
+    max-height: 180px;
+  }
+}
