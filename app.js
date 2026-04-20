@@ -81,6 +81,7 @@ function parseCsv(text) {
         row = [];
         cell = "";
       } else if (ch === "\r") {
+        // 何もしない
       } else {
         cell += ch;
       }
@@ -127,10 +128,15 @@ function normalizeRow(r) {
     title: String(r.title || "").trim(),
     field_no: String(r.field_no || "").trim(),
     question_no: String(r.question_no || "").trim(),
-    question: r.question.trim(),
+    question: String(r.question || "").trim(),
     choices,
     answerIndex: compactAnswerIndex,
   };
+}
+
+// ★ 修正：title_no だけでなく title も合わせて一意キーにする
+function getTitleKey(q) {
+  return `${String(q.title_no || "").trim()}__${String(q.title || "").trim()}`;
 }
 
 function renderTitleCheckList(rows) {
@@ -140,10 +146,12 @@ function renderTitleCheckList(rows) {
   }
 
   const uniqueMap = new Map();
+
   rows.forEach((q) => {
-    const key = q.title_no || q.title;
+    const key = getTitleKey(q);
     if (!uniqueMap.has(key)) {
       uniqueMap.set(key, {
+        key,
         title_no: q.title_no,
         title: q.title,
         field_no: q.field_no,
@@ -152,22 +160,24 @@ function renderTitleCheckList(rows) {
   });
 
   const list = [...uniqueMap.values()].sort((a, b) => {
-    return String(a.title_no).localeCompare(String(b.title_no), "ja");
+    return String(a.field_no).localeCompare(String(b.field_no), "ja", {
+      numeric: true,
+    });
   });
 
   titleCheckList.innerHTML = list
     .map(
       (item) => `
       <label class="check-item">
-        <input type="checkbox" class="title-check" value="${escapeHtml(item.title_no)}" checked>
-        <span>${escapeHtml(item.title_no)}：${escapeHtml(item.title)}（分野 ${escapeHtml(item.field_no)}）</span>
+        <input type="checkbox" class="title-check" value="${escapeHtml(item.key)}" checked>
+        <span>${escapeHtml(item.field_no)}：${escapeHtml(item.title)}（タイトル番号 ${escapeHtml(item.title_no)}）</span>
       </label>
     `
     )
     .join("");
 }
 
-function getSelectedTitleNos() {
+function getSelectedTitleKeys() {
   return [...document.querySelectorAll(".title-check:checked")].map((el) => el.value);
 }
 
@@ -177,8 +187,8 @@ function makeQuiz() {
     return;
   }
 
-  const selectedTitleNos = getSelectedTitleNos();
-  if (!selectedTitleNos.length) {
+  const selectedTitleKeys = getSelectedTitleKeys();
+  if (!selectedTitleKeys.length) {
     statusEl.textContent = "タイトルを1つ以上選んでください。";
     return;
   }
@@ -186,7 +196,8 @@ function makeQuiz() {
   const inputTitle = $("titleInput").value.trim();
   const count = Math.max(1, Number($("countInput").value || 5));
 
-  const pool = allQuestions.filter((q) => selectedTitleNos.includes(q.title_no));
+  // ★ 修正：title_no ではなく title_no + title の組み合わせで絞る
+  const pool = allQuestions.filter((q) => selectedTitleKeys.includes(getTitleKey(q)));
 
   if (pool.length < count) {
     statusEl.textContent = `対象問題が不足しています。現在 ${pool.length}問、必要 ${count}問です。`;
@@ -290,10 +301,8 @@ async function savePdf(mode) {
     return;
   }
 
-  // 指定モードで一時描画
   renderPaper(currentTitle, generated, mode);
 
-  // 描画反映待ち
   await new Promise((resolve) => setTimeout(resolve, 200));
 
   const filename =
@@ -308,14 +317,14 @@ async function savePdf(mode) {
     html2canvas: {
       scale: 2,
       useCORS: true,
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
     },
     jsPDF: {
       unit: "mm",
       format: "a4",
-      orientation: "portrait"
+      orientation: "portrait",
     },
-    pagebreak: { mode: ["css", "legacy"] }
+    pagebreak: { mode: ["css", "legacy"] },
   };
 
   try {
@@ -328,10 +337,10 @@ async function savePdf(mode) {
     console.error(err);
     statusEl.textContent = "PDF作成に失敗しました。";
   } finally {
-    // 画面は解答ありに戻す
     renderPaper(currentTitle, generated, "answer");
   }
 }
+
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -348,6 +357,7 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
 function selectAllTitles() {
   document.querySelectorAll(".title-check").forEach((el) => {
     el.checked = true;
@@ -359,23 +369,22 @@ function clearAllTitles() {
     el.checked = false;
   });
 }
+
 function resetAll() {
   if (!confirm("すべてのデータを初期化しますか？")) return;
 
-  // データリセット
   allQuestions = [];
   generated = [];
   currentTitle = "";
 
-  // 入力リセット
   $("titleInput").value = "";
   $("countInput").value = 5;
   $("csvFileInput").value = "";
 
-  // 表示リセット
   titleCheckList.innerHTML = "まだ読み込んでいません。";
   paperArea.innerHTML = "<div>まだ作成していません。</div>";
 
   statusEl.textContent = "初期化しました。";
 }
+
 loadCsv();
