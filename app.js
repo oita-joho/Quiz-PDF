@@ -124,19 +124,14 @@ function normalizeRow(r) {
   if (compactAnswerIndex === -1) return null;
 
   return {
-    title_no: String(r.title_no || "").trim(),
-    title: String(r.title || "").trim(),
     field_no: String(r.field_no || "").trim(),
     question_no: String(r.question_no || "").trim(),
+    title_no: String(r.title_no || "").trim(),
+    title: String(r.title || "").trim(),
     question: String(r.question || "").trim(),
     choices,
     answerIndex: compactAnswerIndex,
   };
-}
-
-// ★ 修正：title_no だけでなく title も合わせて一意キーにする
-function getTitleKey(q) {
-  return `${String(q.title_no || "").trim()}__${String(q.title || "").trim()}`;
 }
 
 function renderTitleCheckList(rows) {
@@ -148,13 +143,13 @@ function renderTitleCheckList(rows) {
   const uniqueMap = new Map();
 
   rows.forEach((q) => {
-    const key = getTitleKey(q);
+    const key = q.field_no || q.title || q.title_no;
     if (!uniqueMap.has(key)) {
       uniqueMap.set(key, {
         key,
+        field_no: q.field_no,
         title_no: q.title_no,
         title: q.title,
-        field_no: q.field_no,
       });
     }
   });
@@ -170,14 +165,14 @@ function renderTitleCheckList(rows) {
       (item) => `
       <label class="check-item">
         <input type="checkbox" class="title-check" value="${escapeHtml(item.key)}" checked>
-        <span>${escapeHtml(item.field_no)}：${escapeHtml(item.title)}（タイトル番号 ${escapeHtml(item.title_no)}）</span>
+        <span>${escapeHtml(item.field_no)}：${escapeHtml(item.title)}（分野 ${escapeHtml(item.field_no)}）</span>
       </label>
     `
     )
     .join("");
 }
 
-function getSelectedTitleKeys() {
+function getSelectedFieldNos() {
   return [...document.querySelectorAll(".title-check:checked")].map((el) => el.value);
 }
 
@@ -187,8 +182,8 @@ function makeQuiz() {
     return;
   }
 
-  const selectedTitleKeys = getSelectedTitleKeys();
-  if (!selectedTitleKeys.length) {
+  const selectedFieldNos = getSelectedFieldNos();
+  if (!selectedFieldNos.length) {
     statusEl.textContent = "タイトルを1つ以上選んでください。";
     return;
   }
@@ -196,8 +191,7 @@ function makeQuiz() {
   const inputTitle = $("titleInput").value.trim();
   const count = Math.max(1, Number($("countInput").value || 5));
 
-  // ★ 修正：title_no ではなく title_no + title の組み合わせで絞る
-  const pool = allQuestions.filter((q) => selectedTitleKeys.includes(getTitleKey(q)));
+  const pool = allQuestions.filter((q) => selectedFieldNos.includes(q.field_no));
 
   if (pool.length < count) {
     statusEl.textContent = `対象問題が不足しています。現在 ${pool.length}問、必要 ${count}問です。`;
