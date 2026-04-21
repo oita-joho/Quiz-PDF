@@ -50,9 +50,11 @@ async function loadLocalCsv(event) {
 function loadQuestionsFromText(text) {
   allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
   renderTitleCheckList(allQuestions);
+
   generated = [];
   currentTitle = "";
-  paperArea.innerHTML = "<div>まだ作成していません。</div>";
+  paperArea.className = "";
+  paperArea.innerHTML = "<div class=\"empty-preview\">まだ作成していません。</div>";
 }
 
 function parseCsv(text) {
@@ -163,9 +165,9 @@ function renderTitleCheckList(rows) {
     }
   });
 
-  const list = [...uniqueMap.values()].sort((a, b) => {
-    return a.key.localeCompare(b.key, "ja", { numeric: true });
-  });
+  const list = [...uniqueMap.values()].sort((a, b) =>
+    a.key.localeCompare(b.key, "ja", { numeric: true })
+  );
 
   titleCheckList.innerHTML = list
     .map(
@@ -247,43 +249,42 @@ function buildQuestion(q, no) {
 
 function renderPaper(title, items, mode = "answer") {
   const labels = ["ア", "イ", "ウ"];
-
   const pages = [];
+
   for (let i = 0; i < items.length; i += PAGE_SIZE) {
     pages.push(items.slice(i, i + PAGE_SIZE));
   }
 
   paperArea.className = "preview-sheet multi-page";
-
   paperArea.innerHTML = pages
     .map((pageItems, pageIndex) => {
       if (pageIndex === 0) {
         return `
-        <section class="pdf-page first-page">
-          <h1 class="paper-title">${escapeHtml(title)}</h1>
+          <section class="pdf-page first-page">
+            <h1 class="paper-title">${escapeHtml(title)}</h1>
 
-          <div class="test-info single-line">
-            <div>組：<span class="test-line class-line"></span></div>
-            <div>番号：<span class="test-line no-line"></span></div>
-            <div>氏名：<span class="test-line name-line"></span></div>
-            <div>得点：<span class="score-box"></span> 点</div>
-          </div>
+            <div class="test-info single-line">
+              <div>組：<span class="test-line class-line"></span></div>
+              <div>番号：<span class="test-line no-line"></span></div>
+              <div>氏名：<span class="test-line name-line"></span></div>
+              <div>得点：<span class="score-box"></span> 点</div>
+            </div>
+
+            <div class="question-list">
+              ${renderQuestions(pageItems, labels, mode)}
+            </div>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="pdf-page">
+          <h1 class="paper-title sub-title">${escapeHtml(title)}</h1>
 
           <div class="question-list">
             ${renderQuestions(pageItems, labels, mode)}
           </div>
         </section>
-        `;
-      }
-
-      return `
-      <section class="pdf-page">
-        <h1 class="paper-title sub-title">${escapeHtml(title)}</h1>
-
-        <div class="question-list">
-          ${renderQuestions(pageItems, labels, mode)}
-        </div>
-      </section>
       `;
     })
     .join("");
@@ -299,7 +300,7 @@ function renderQuestions(items, labels, mode) {
             ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
           </div>
           <div class="question-main">
-            <div>
+            <div class="question-text">
               <strong>${item.no}.</strong>
               <span class="question-title-inline">${escapeHtml(item.title)}</span>
               ${escapeHtml(item.question)}
@@ -327,7 +328,6 @@ async function savePdf(mode) {
   }
 
   renderPaper(currentTitle, generated, mode);
-
   await new Promise((resolve) => setTimeout(resolve, 200));
 
   const filename =
@@ -336,13 +336,15 @@ async function savePdf(mode) {
       : `${currentTitle}_解答.pdf`;
 
   const opt = {
-    margin: [8, 8, 8, 8],
+    margin: [0, 0, 0, 0],
     filename,
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
+      scrollX: 0,
+      scrollY: 0,
     },
     jsPDF: {
       unit: "mm",
@@ -410,7 +412,7 @@ function resetAll() {
 
   titleCheckList.innerHTML = "まだ読み込んでいません。";
   paperArea.className = "";
-  paperArea.innerHTML = "<div>まだ作成していません。</div>";
+  paperArea.innerHTML = "<div class=\"empty-preview\">まだ作成していません。</div>";
 
   statusEl.textContent = "初期化しました。";
 }
