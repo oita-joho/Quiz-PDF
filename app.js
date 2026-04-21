@@ -257,12 +257,18 @@ function renderPaper(title, items, mode = "answer") {
       <section class="pdf-page">
         <h1 class="paper-title">${escapeHtml(title)}</h1>
 
+        ${
+          pageIndex === 0
+            ? `
         <div class="test-info single-line">
           <div>組：<span class="test-line class-line"></span></div>
           <div>番号：<span class="test-line no-line"></span></div>
           <div>氏名：<span class="test-line name-line"></span></div>
           <div>得点：<span class="score-box"></span> 点</div>
         </div>
+        `
+            : ""
+        }
 
         <div class="page-number">${pageIndex + 1} / ${pages.length}</div>
 
@@ -274,20 +280,22 @@ function renderPaper(title, items, mode = "answer") {
               <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
                 ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
               </div>
-              <div>
-                <strong>${item.no}.</strong>
-                <span class="question-title-inline">${escapeHtml(item.title)}</span>
-                ${escapeHtml(item.question)}
+              <div class="question-main">
+                <div>
+                  <strong>${item.no}.</strong>
+                  <span class="question-title-inline">${escapeHtml(item.title)}</span>
+                  ${escapeHtml(item.question)}
+                </div>
+
+                ${item.shownChoices
+                  .map(
+                    (c, i) => `
+                  <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
+                `
+                  )
+                  .join("")}
               </div>
             </div>
-
-            ${item.shownChoices
-              .map(
-                (c, i) => `
-              <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
-            `
-              )
-              .join("")}
           </div>
         `
           )
@@ -297,7 +305,6 @@ function renderPaper(title, items, mode = "answer") {
     )
     .join("");
 }
-
 async function savePdf(mode) {
   if (!generated.length) {
     statusEl.textContent = "先に問題を作成してください。";
