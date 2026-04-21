@@ -33,6 +33,7 @@ body {
 h1 {
   margin: 0 0 8px;
   font-size: 20px;
+  line-height: 1.4;
 }
 
 .small {
@@ -40,17 +41,18 @@ h1 {
   color: #6b7280;
 }
 
+/* =========================
+   入力
+========================= */
 label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 input[type="text"],
 input[type="number"],
-input[type="file"],
-textarea,
-select {
+input[type="file"] {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #cbd5e1;
@@ -63,6 +65,9 @@ input[type="checkbox"] {
   transform: translateY(1px);
 }
 
+/* =========================
+   ボタン
+========================= */
 button {
   appearance: none;
   border: 0;
@@ -106,6 +111,9 @@ button:hover {
   color: #475569;
 }
 
+/* =========================
+   レイアウト
+========================= */
 .grid {
   display: grid;
   grid-template-columns: 1fr 220px;
@@ -135,12 +143,13 @@ button:hover {
 }
 
 /* =========================
-   プレビュー共通
+   プレビュー領域
 ========================= */
 #paperArea {
   background: #fff;
   border-radius: 12px;
   min-height: 120px;
+  overflow: hidden;
 }
 
 /* =========================
@@ -167,8 +176,11 @@ button:hover {
   break-after: auto;
 }
 
+/* =========================
+   1ページ目
+========================= */
 .first-page .test-info {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 /* =========================
@@ -178,7 +190,7 @@ button:hover {
   margin: 0 0 14px;
   text-align: center;
   font-size: 22px;
-  line-height: 1.35;
+  line-height: 1.4;
   font-weight: 700;
 }
 
@@ -196,7 +208,6 @@ button:hover {
   justify-content: space-between;
   gap: 18px;
   font-size: 15px;
-  margin-bottom: 14px;
   flex-wrap: nowrap;
 }
 
@@ -207,7 +218,7 @@ button:hover {
 .test-line {
   display: inline-block;
   height: 1.2em;
-  border-bottom: 2px solid #111;
+  border-bottom: 2px solid #111827;
   vertical-align: bottom;
 }
 
@@ -227,7 +238,7 @@ button:hover {
   display: inline-block;
   width: 70px;
   height: 34px;
-  border: 2px solid #111;
+  border: 2px solid #111827;
   vertical-align: middle;
 }
 
@@ -256,12 +267,11 @@ button:hover {
   width: 34px;
   min-width: 34px;
   height: 34px;
-  border: 2px solid #111;
+  border: 2px solid #111827;
   text-align: center;
   line-height: 30px;
   font-size: 22px;
   font-weight: 700;
-  box-sizing: border-box;
   background: #fff;
 }
 
@@ -277,10 +287,10 @@ button:hover {
 .question-main {
   flex: 1;
   min-width: 0;
+  font-size: 16px;
+  line-height: 1.7;
   page-break-inside: avoid;
   break-inside: avoid;
-  font-size: 16px;
-  line-height: 1.6;
 }
 
 .question-title-inline {
@@ -290,9 +300,8 @@ button:hover {
 
 .choice {
   margin-top: 6px;
-  margin-left: 0;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* =========================
@@ -308,7 +317,8 @@ button:hover {
     padding: 0;
   }
 
-  .hidden-print {
+  .hidden-print,
+  .card.hidden-print {
     display: none !important;
   }
 
@@ -323,6 +333,7 @@ button:hover {
   #paperArea {
     border-radius: 0;
     min-height: auto;
+    overflow: visible;
   }
 
   .preview-sheet.multi-page {
