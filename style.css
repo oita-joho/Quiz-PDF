@@ -331,3 +331,11 @@ td {
     max-height: 180px;
   }
 }
+.question {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.preview-sheet {
+  page-break-after: auto;
+}
