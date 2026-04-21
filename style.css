@@ -1,71 +1,150 @@
 /* =========================
-   全体設定
+   全体
 ========================= */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-  background: #f5f5f5;
   margin: 0;
+  font-family: "Meiryo", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .wrap {
-  max-width: 900px;
-  margin: auto;
-  padding: 10px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
 }
 
 .card {
-  background: #fff;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .hidden-print {
-  margin-bottom: 10px;
+  display: block;
 }
 
 h1 {
-  margin: 0 0 6px 0;
+  margin: 0 0 8px;
+  font-size: 20px;
 }
 
 .small {
-  font-size: 12px;
-  color: #666;
-}
-
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 label {
-  font-size: 13px;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
-input {
-  padding: 4px;
-  font-size: 14px;
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fff;
+}
+
+input[type="checkbox"] {
+  transform: translateY(1px);
 }
 
 button {
-  padding: 6px 10px;
-  font-size: 14px;
+  appearance: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
+  color: #fff;
+  background: #64748b;
+  margin-right: 8px;
+  margin-bottom: 8px;
 }
 
-/* =========================
-   タイトルチェック
-========================= */
-.check-item {
-  display: block;
-  margin-bottom: 4px;
+button:hover {
+  opacity: 0.92;
+}
+
+#loadBtn,
+#selectAllBtn {
+  background: #2563eb;
+}
+
+#makeBtn {
+  background: #16a34a;
+}
+
+#printQuestionsBtn,
+#printAnswersBtn,
+#clearAllBtn {
+  background: #64748b;
+}
+
+#resetBtn {
+  background: #dc2626;
+}
+
+#status {
+  margin-top: 8px;
   font-size: 14px;
+  color: #475569;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 16px;
+  align-items: end;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================
-   PDF表示エリア
+   タイトル一覧
+========================= */
+#titleCheckList {
+  margin-top: 8px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 16px;
+}
+
+/* =========================
+   プレビュー共通
+========================= */
+#paperArea {
+  background: #fff;
+  border-radius: 12px;
+  min-height: 120px;
+}
+
+/* =========================
+   PDF複数ページ
 ========================= */
 .preview-sheet.multi-page {
   width: 190mm;
@@ -73,18 +152,12 @@ button {
   background: #fff;
 }
 
-/* =========================
-   ページ
-========================= */
 .pdf-page {
   width: 190mm;
   min-height: 277mm;
-  margin: 0 auto 10mm auto;
-  padding: 10mm 8mm;
-  box-sizing: border-box;
+  margin: 0 auto 10mm;
+  padding: 10mm 10mm 12mm;
   background: #fff;
-
-  /* 改ページ */
   page-break-after: always;
   break-after: page;
 }
@@ -94,154 +167,174 @@ button {
   break-after: auto;
 }
 
+.first-page .test-info {
+  margin-bottom: 16px;
+}
+
 /* =========================
    タイトル
 ========================= */
 .paper-title {
+  margin: 0 0 14px;
   text-align: center;
   font-size: 22px;
-  margin: 0 0 10px 0;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.paper-title.sub-title {
+  font-size: 18px;
+  margin-bottom: 12px;
 }
 
 /* =========================
-   名前欄
+   名前欄（1ページ目のみ）
 ========================= */
 .test-info.single-line {
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-  margin-bottom: 8px;
+  gap: 18px;
+  font-size: 15px;
+  margin-bottom: 14px;
   flex-wrap: nowrap;
+}
+
+.test-info.single-line > div {
+  white-space: nowrap;
 }
 
 .test-line {
   display: inline-block;
-  border-bottom: 1px solid #333;
   height: 1.2em;
+  border-bottom: 2px solid #111;
   vertical-align: bottom;
 }
 
 .class-line {
-  width: 32px;
+  width: 60px;
 }
 
 .no-line {
-  width: 32px;
+  width: 70px;
 }
 
 .name-line {
-  width: 120px;
+  width: 220px;
 }
 
 .score-box {
   display: inline-block;
-  width: 28px;
-  height: 1.2em;
-  border: 1px solid #333;
+  width: 70px;
+  height: 34px;
+  border: 2px solid #111;
   vertical-align: middle;
 }
 
 /* =========================
-   ページ番号
+   問題一覧
 ========================= */
-.page-number {
-  text-align: right;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 10px;
+.question-list {
+  width: 100%;
 }
 
-/* =========================
-   問題ブロック
-========================= */
 .question {
-  margin-bottom: 12px;
-
-  /* 途中で改ページしない */
+  margin-bottom: 14px;
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
-/* 横並び */
 .answer-row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-
+  gap: 12px;
   page-break-inside: avoid;
   break-inside: avoid;
+}
+
+.answer-box {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 2px solid #111;
+  text-align: center;
+  line-height: 30px;
+  font-size: 22px;
+  font-weight: 700;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.answer-box-filled {
+  font-weight: 700;
+}
+
+.answer-red {
+  color: #d00000;
+  border-color: #d00000;
 }
 
 .question-main {
   flex: 1;
-
+  min-width: 0;
   page-break-inside: avoid;
   break-inside: avoid;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-/* =========================
-   解答枠
-========================= */
-.answer-box {
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  border: 1px solid #333;
-  text-align: center;
-  line-height: 28px;
-  font-weight: bold;
-  box-sizing: border-box;
-}
-
-.answer-box-filled {
-  font-weight: bold;
-}
-
-.answer-red {
-  color: #d00;
-  border-color: #d00;
-}
-
-/* =========================
-   問題文
-========================= */
 .question-title-inline {
-  font-weight: bold;
-  margin-right: 0.4em;
+  font-weight: 700;
+  margin-right: 0.45em;
 }
 
-/* 選択肢 */
 .choice {
+  margin-top: 6px;
   margin-left: 0;
-  margin-top: 4px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
 /* =========================
-   印刷用
+   印刷
 ========================= */
 @media print {
-
   body {
     background: #fff;
   }
 
   .wrap {
+    max-width: none;
     padding: 0;
   }
 
-  .card,
   .hidden-print {
-    display: none;
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+  }
+
+  #paperArea {
+    border-radius: 0;
+    min-height: auto;
+  }
+
+  .preview-sheet.multi-page {
+    width: auto;
+    margin: 0;
   }
 
   .pdf-page {
+    width: auto;
+    min-height: auto;
     margin: 0;
+    padding: 10mm 10mm 12mm;
     box-shadow: none;
   }
-}
-.first-page .test-info {
-  margin-bottom: 16px;
 }
