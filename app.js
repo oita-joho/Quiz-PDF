@@ -8,6 +8,9 @@ let allQuestions = [];
 let generated = [];
 let currentTitle = "";
 
+// 1ページあたりの問題数
+const PAGE_SIZE = 5;
+
 $("loadBtn").addEventListener("click", loadCsv);
 $("makeBtn").addEventListener("click", makeQuiz);
 $("printQuestionsBtn").addEventListener("click", () => savePdf("question"));
@@ -165,7 +168,7 @@ function renderTitleCheckList(rows) {
       (item) => `
       <label class="check-item">
         <input type="checkbox" class="title-check" value="${escapeHtml(item.key)}" checked>
-        <span>${escapeHtml(item.field_no)}：${escapeHtml(item.title)}（分野 ${escapeHtml(item.field_no)}）</span>
+        <span>${escapeHtml(item.field_no)}：${escapeHtml(item.title)}（タイトル番号 ${escapeHtml(item.title_no)}）</span>
       </label>
     `
     )
@@ -238,55 +241,61 @@ function buildQuestion(q, no) {
   };
 }
 
-function getDensityClass(items) {
-  if (items.length >= 9) return "density-tight";
-  if (items.length >= 7) return "density-compact";
-  return "density-normal";
-}
-
 function renderPaper(title, items, mode = "answer") {
   const labels = ["ア", "イ", "ウ"];
-  const densityClass = getDensityClass(items);
 
-  paperArea.className = `preview-sheet ${densityClass}`;
+  const pages = [];
+  for (let i = 0; i < items.length; i += PAGE_SIZE) {
+    pages.push(items.slice(i, i + PAGE_SIZE));
+  }
 
-  paperArea.innerHTML = `
-    <h1 class="paper-title">${escapeHtml(title)}</h1>
+  paperArea.className = "preview-sheet multi-page";
 
-    <div class="test-info single-line">
-      <div>組：<span class="test-line class-line"></span></div>
-      <div>番号：<span class="test-line no-line"></span></div>
-      <div>氏名：<span class="test-line name-line"></span></div>
-      <div>得点：<span class="score-box"></span> 点</div>
-    </div>
+  paperArea.innerHTML = pages
+    .map(
+      (pageItems, pageIndex) => `
+      <section class="pdf-page">
+        <h1 class="paper-title">${escapeHtml(title)}</h1>
 
-    ${items
-      .map(
-        (item) => `
-      <div class="question">
-        <div class="answer-row">
-          <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
-            ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
-          </div>
-          <div>
-            <strong>${item.no}.</strong>
-            <span class="question-title-inline">${escapeHtml(item.title)}</span>
-            ${escapeHtml(item.question)}
-          </div>
+        <div class="test-info single-line">
+          <div>組：<span class="test-line class-line"></span></div>
+          <div>番号：<span class="test-line no-line"></span></div>
+          <div>氏名：<span class="test-line name-line"></span></div>
+          <div>得点：<span class="score-box"></span> 点</div>
         </div>
 
-        ${item.shownChoices
+        <div class="page-number">${pageIndex + 1} / ${pages.length}</div>
+
+        ${pageItems
           .map(
-            (c, i) => `
-          <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
+            (item) => `
+          <div class="question">
+            <div class="answer-row">
+              <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
+                ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
+              </div>
+              <div>
+                <strong>${item.no}.</strong>
+                <span class="question-title-inline">${escapeHtml(item.title)}</span>
+                ${escapeHtml(item.question)}
+              </div>
+            </div>
+
+            ${item.shownChoices
+              .map(
+                (c, i) => `
+              <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
+            `
+              )
+              .join("")}
+          </div>
         `
           )
           .join("")}
-      </div>
+      </section>
     `
-      )
-      .join("")}
-  `;
+    )
+    .join("");
 }
 
 async function savePdf(mode) {
@@ -305,7 +314,7 @@ async function savePdf(mode) {
       : `${currentTitle}_解答.pdf`;
 
   const opt = {
-    margin: [10, 10, 10, 10],
+    margin: [8, 8, 8, 8],
     filename,
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: {
@@ -318,7 +327,9 @@ async function savePdf(mode) {
       format: "a4",
       orientation: "portrait",
     },
-    pagebreak: { mode: ["css"] },
+    pagebreak: {
+      mode: ["css"]
+    },
   };
 
   try {
