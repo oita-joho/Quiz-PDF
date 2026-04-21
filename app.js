@@ -252,55 +252,72 @@ function renderPaper(title, items, mode = "answer") {
   paperArea.className = "preview-sheet multi-page";
 
   paperArea.innerHTML = pages
-    .map(
-      (pageItems, pageIndex) => `
-      <section class="pdf-page">
-        <h1 class="paper-title">${escapeHtml(title)}</h1>
+    .map((pageItems, pageIndex) => {
+      // ★1ページ目だけ特別（名前欄あり）
+      if (pageIndex === 0) {
+        return `
+        <section class="pdf-page first-page">
 
-        ${
-          pageIndex === 0
-            ? `
-        <div class="test-info single-line">
-          <div>組：<span class="test-line class-line"></span></div>
-          <div>番号：<span class="test-line no-line"></span></div>
-          <div>氏名：<span class="test-line name-line"></span></div>
-          <div>得点：<span class="score-box"></span> 点</div>
-        </div>
-        `
-            : ""
-        }
+          <h1 class="paper-title">${escapeHtml(title)}</h1>
 
-        <div class="page-number">${pageIndex + 1} / ${pages.length}</div>
-
-        ${pageItems
-          .map(
-            (item) => `
-          <div class="question">
-            <div class="answer-row">
-              <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
-                ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
-              </div>
-              <div class="question-main">
-                <div>
-                  <strong>${item.no}.</strong>
-                  <span class="question-title-inline">${escapeHtml(item.title)}</span>
-                  ${escapeHtml(item.question)}
-                </div>
-
-                ${item.shownChoices
-                  .map(
-                    (c, i) => `
-                  <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
-                `
-                  )
-                  .join("")}
-              </div>
-            </div>
+          <div class="test-info single-line">
+            <div>組：<span class="test-line class-line"></span></div>
+            <div>番号：<span class="test-line no-line"></span></div>
+            <div>氏名：<span class="test-line name-line"></span></div>
+            <div>得点：<span class="score-box"></span> 点</div>
           </div>
-        `
-          )
-          .join("")}
+
+          <div class="question-list">
+            ${renderQuestions(pageItems, labels, mode)}
+          </div>
+
+        </section>
+        `;
+      }
+
+      // ★2ページ目以降（名前欄なし）
+      return `
+      <section class="pdf-page">
+
+        <h1 class="paper-title sub-title">${escapeHtml(title)}</h1>
+
+        <div class="question-list">
+          ${renderQuestions(pageItems, labels, mode)}
+        </div>
+
       </section>
+      `;
+    })
+    .join("");
+}
+
+// 共通化（スッキリ）
+function renderQuestions(items, labels, mode) {
+  return items
+    .map(
+      (item) => `
+      <div class="question">
+        <div class="answer-row">
+          <div class="answer-box ${mode === "answer" ? "answer-box-filled answer-red" : ""}">
+            ${mode === "answer" ? labels[item.correctDisplayIndex] : ""}
+          </div>
+          <div class="question-main">
+            <div>
+              <strong>${item.no}.</strong>
+              <span class="question-title-inline">${escapeHtml(item.title)}</span>
+              ${escapeHtml(item.question)}
+            </div>
+
+            ${item.shownChoices
+              .map(
+                (c, i) => `
+              <div class="choice">${labels[i]}　${escapeHtml(c.text)}</div>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
+      </div>
     `
     )
     .join("");
