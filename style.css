@@ -339,3 +339,7 @@ td {
 .preview-sheet {
   page-break-after: auto;
 }
+.page-break {
+  page-break-before: always;
+  break-before: page;
+}
