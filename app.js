@@ -8,7 +8,6 @@ let allQuestions = [];
 let generated = [];
 let currentTitle = "";
 
-// 1ページあたりの問題数
 const PAGE_SIZE = 5;
 
 $("loadBtn").addEventListener("click", loadCsv);
@@ -51,6 +50,9 @@ async function loadLocalCsv(event) {
 function loadQuestionsFromText(text) {
   allQuestions = parseCsv(text).map(normalizeRow).filter(Boolean);
   renderTitleCheckList(allQuestions);
+  generated = [];
+  currentTitle = "";
+  paperArea.innerHTML = "<div>まだ作成していません。</div>";
 }
 
 function parseCsv(text) {
@@ -137,6 +139,10 @@ function normalizeRow(r) {
   };
 }
 
+function makeTitleKey(q) {
+  return `${q.field_no}__${q.title_no}__${q.title}`;
+}
+
 function renderTitleCheckList(rows) {
   if (!rows.length) {
     titleCheckList.innerHTML = "表示できるタイトルがありません。";
@@ -146,7 +152,7 @@ function renderTitleCheckList(rows) {
   const uniqueMap = new Map();
 
   rows.forEach((q) => {
-    const key = q.field_no || q.title || q.title_no;
+    const key = makeTitleKey(q);
     if (!uniqueMap.has(key)) {
       uniqueMap.set(key, {
         key,
@@ -158,9 +164,7 @@ function renderTitleCheckList(rows) {
   });
 
   const list = [...uniqueMap.values()].sort((a, b) => {
-    return String(a.field_no).localeCompare(String(b.field_no), "ja", {
-      numeric: true,
-    });
+    return a.key.localeCompare(b.key, "ja", { numeric: true });
   });
 
   titleCheckList.innerHTML = list
@@ -175,7 +179,7 @@ function renderTitleCheckList(rows) {
     .join("");
 }
 
-function getSelectedFieldNos() {
+function getSelectedTitleKeys() {
   return [...document.querySelectorAll(".title-check:checked")].map((el) => el.value);
 }
 
@@ -185,8 +189,8 @@ function makeQuiz() {
     return;
   }
 
-  const selectedFieldNos = getSelectedFieldNos();
-  if (!selectedFieldNos.length) {
+  const selectedTitleKeys = getSelectedTitleKeys();
+  if (!selectedTitleKeys.length) {
     statusEl.textContent = "タイトルを1つ以上選んでください。";
     return;
   }
@@ -194,7 +198,7 @@ function makeQuiz() {
   const inputTitle = $("titleInput").value.trim();
   const count = Math.max(1, Number($("countInput").value || 5));
 
-  const pool = allQuestions.filter((q) => selectedFieldNos.includes(q.field_no));
+  const pool = allQuestions.filter((q) => selectedTitleKeys.includes(makeTitleKey(q)));
 
   if (pool.length < count) {
     statusEl.textContent = `対象問題が不足しています。現在 ${pool.length}問、必要 ${count}問です。`;
@@ -253,11 +257,9 @@ function renderPaper(title, items, mode = "answer") {
 
   paperArea.innerHTML = pages
     .map((pageItems, pageIndex) => {
-      // ★1ページ目だけ特別（名前欄あり）
       if (pageIndex === 0) {
         return `
         <section class="pdf-page first-page">
-
           <h1 class="paper-title">${escapeHtml(title)}</h1>
 
           <div class="test-info single-line">
@@ -270,28 +272,23 @@ function renderPaper(title, items, mode = "answer") {
           <div class="question-list">
             ${renderQuestions(pageItems, labels, mode)}
           </div>
-
         </section>
         `;
       }
 
-      // ★2ページ目以降（名前欄なし）
       return `
       <section class="pdf-page">
-
         <h1 class="paper-title sub-title">${escapeHtml(title)}</h1>
 
         <div class="question-list">
           ${renderQuestions(pageItems, labels, mode)}
         </div>
-
       </section>
       `;
     })
     .join("");
 }
 
-// 共通化（スッキリ）
 function renderQuestions(items, labels, mode) {
   return items
     .map(
@@ -322,6 +319,7 @@ function renderQuestions(items, labels, mode) {
     )
     .join("");
 }
+
 async function savePdf(mode) {
   if (!generated.length) {
     statusEl.textContent = "先に問題を作成してください。";
@@ -352,7 +350,7 @@ async function savePdf(mode) {
       orientation: "portrait",
     },
     pagebreak: {
-      mode: ["css"]
+      mode: ["css"],
     },
   };
 
@@ -411,6 +409,7 @@ function resetAll() {
   $("csvFileInput").value = "";
 
   titleCheckList.innerHTML = "まだ読み込んでいません。";
+  paperArea.className = "";
   paperArea.innerHTML = "<div>まだ作成していません。</div>";
 
   statusEl.textContent = "初期化しました。";
