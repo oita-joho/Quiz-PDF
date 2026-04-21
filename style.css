@@ -242,3 +242,6 @@ button {
     box-shadow: none;
   }
 }
+.first-page .test-info {
+  margin-bottom: 16px;
+}
