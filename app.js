@@ -318,7 +318,7 @@ async function savePdf(mode) {
       format: "a4",
       orientation: "portrait",
     },
-    pagebreak: { mode: ["css", "legacy"] },
+    pagebreak: { mode: ["css"] },
   };
 
   try {
